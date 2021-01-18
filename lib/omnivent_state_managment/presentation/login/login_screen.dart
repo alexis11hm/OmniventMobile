@@ -124,7 +124,7 @@ class __TextFieldsState extends State<_TextFields> {
                    width: size.width,
                    height: 50,
                    decoration: BoxDecoration(
-                     color: Color(0xFF264e86),
+                     color: OmniventColors.azulMarino,
                      borderRadius: BorderRadius.all(Radius.circular(30))
                    ),
                    child: Center(

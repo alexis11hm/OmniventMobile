@@ -38,7 +38,7 @@ class _SliverCustom extends StatelessWidget {
       OptionItem(
         title: 'Productos',
         subtitle: 'Catalogo de productos',
-        icon: FontAwesome.product_hunt,
+        icon: Icons.shop_two,
         onPressed: (){
           Navigator.of(context).push(
             CupertinoPageRoute(
@@ -50,7 +50,7 @@ class _SliverCustom extends StatelessWidget {
       OptionItem(
         title: 'Corte de Cajas',
         subtitle: 'Consulta de Cortes',
-        icon: AntDesign.pay_circle1,
+        icon: Icons.computer,
         onPressed: (){
           Navigator.of(context).push(
             CupertinoPageRoute(
@@ -135,7 +135,7 @@ class _SliverCustom extends StatelessWidget {
                     subtitle: 'Bienvenido de Nuevo',
                     maxHeight: 205,
                     minHeight: 170,
-                    icon: Icons.menu,
+                    icon: Icons.settings,
                     iconTitle: FontAwesome5.smile_wink,
                     sliverChild: Container(
                       height: 45,
