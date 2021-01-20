@@ -50,7 +50,7 @@ class _SliverCustom extends StatelessWidget {
       OptionItem(
         title: 'Corte de Cajas',
         subtitle: 'Consulta de Cortes',
-        icon: Icons.computer,
+        icon: Icons.point_of_sale,
         onPressed: (){
           Navigator.of(context).push(
             CupertinoPageRoute(
@@ -135,7 +135,7 @@ class _SliverCustom extends StatelessWidget {
                     subtitle: 'Bienvenido de Nuevo',
                     maxHeight: 205,
                     minHeight: 170,
-                    icon: Icons.settings,
+                    icon: Icons.menu,
                     iconTitle: FontAwesome5.smile_wink,
                     sliverChild: Container(
                       height: 45,

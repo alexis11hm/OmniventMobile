@@ -65,14 +65,14 @@ class _DataCardProfile extends StatelessWidget {
                       style:
                           TextStyle(fontSize: 16, fontWeight: FontWeight.w300)),
                   SizedBox(height: 20),
-                  Row(
+                  /*Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       Text('Modo Obscuro'),
                       Switch(value: false, onChanged: (value) {}),
                     ],
-                  ),
-                  SizedBox(height: 10),
+                  ),*/
+                  SizedBox(height: 30),
                   Align(
                     alignment: Alignment.bottomRight,
                     child: FlatButton.icon(

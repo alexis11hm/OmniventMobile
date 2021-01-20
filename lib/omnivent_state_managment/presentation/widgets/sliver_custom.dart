@@ -86,10 +86,11 @@ class SliverCustom extends StatelessWidget {
                               titulo: 'Cerrar Sesión',
                               contenido: [
                                 Text('¿Estas seguro de cerrar sesión?'),
+                                SizedBox(height: 20),
                                 SvgPicture.asset(
                                   'assets/close/salir.svg',
-                                  width: 120,
-                                  height: 120,
+                                  width: 150,
+                                  height: 150,
                                   placeholderBuilder: (BuildContext context){
                                     return Image.asset(
                                       'assets/cargando.gif',

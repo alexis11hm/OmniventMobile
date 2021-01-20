@@ -1,3 +1,4 @@
+import 'package:animate_do/animate_do.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
@@ -138,12 +139,15 @@ class __ScaffoldState extends State<_Scaffold> {
     }
 
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.sync_rounded),
-        backgroundColor: OmniventColors.naranja,
-        onPressed: () {
-          cargarInformacion();
-        },
+      floatingActionButton: Roulette(
+        delay: Duration(milliseconds: 1500),
+        child: FloatingActionButton(
+          child: Icon(Icons.sync_rounded),
+          backgroundColor: OmniventColors.naranja,
+          onPressed: () {
+            cargarInformacion();
+          },
+        ),
       ),
       body: Stack(
         children: [

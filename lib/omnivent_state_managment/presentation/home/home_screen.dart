@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:omnivent_app_wireframe/omnivent_state_managment/domain/provider/HomeProvider.dart';
 import 'package:omnivent_app_wireframe/omnivent_state_managment/presentation/home/operations/operations_screen.dart';
 import 'package:omnivent_app_wireframe/omnivent_state_managment/presentation/home/profile/profile_screen.dart';
+import 'package:omnivent_app_wireframe/omnivent_state_managment/colors.dart';
+
+
 import 'package:provider/provider.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -64,14 +67,14 @@ class _BottomNavigation extends StatelessWidget {
         height: 60,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.all(Radius.circular(30)),
-          color: Color(0xFF264e86),
+          color: OmniventColors.azulMarino,
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             InkWell(
                 child: Icon(
-                  Icons.point_of_sale_sharp,
+                  Icons.settings,
                   color: Colors.white,
                 ),
                 onTap: () => homeProvider.paginaPrincipal = 0),
@@ -110,5 +113,3 @@ class _BottomNavigation extends StatelessWidget {
     );
   }
 }
-
-class Inkwell {}

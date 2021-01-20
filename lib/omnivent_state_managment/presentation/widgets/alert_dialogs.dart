@@ -22,6 +22,7 @@ class CustomAlertDialog extends StatelessWidget {
                 borderRadius: BorderRadius.circular(20.0)),
             title: Center(child: Text(titulo)),
             content: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisSize: MainAxisSize.min,
               children: contenido,
             ),
