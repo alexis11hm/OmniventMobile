@@ -69,14 +69,12 @@ class ProductsSalesDetailsScreen extends StatelessWidget {
               ),
               SizedBox(height: 30),
               Center(
-                child: Hero(
-                    tag: '${ventaDetalle.vedId+ventaDetalle.vtaId}',
-                    child: FadeInImage(
+                child: FadeInImage(
                     width: 150,
                     height: 150,
                     placeholder: AssetImage('assets/cargando.gif'),
                     image: AssetImage('assets/imagen_no_disponible.png')),
-                ),
+                
               ),
               SizedBox(height: 20),
               Text('Detalles',

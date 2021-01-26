@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:omnivent_app_wireframe/omnivent_state_managment/colors.dart';
 import 'package:omnivent_app_wireframe/omnivent_state_managment/data/service/PreciosService.dart';
 import 'package:omnivent_app_wireframe/omnivent_state_managment/domain/model/PrecioModel.dart';
@@ -10,6 +9,7 @@ import 'package:omnivent_app_wireframe/omnivent_state_managment/colors.dart';
 import 'package:omnivent_app_wireframe/omnivent_state_managment/domain/storage/secure_storage.dart';
 import 'package:omnivent_app_wireframe/omnivent_state_managment/presentation/login/login_screen.dart';
 import 'package:omnivent_app_wireframe/omnivent_state_managment/presentation/widgets/alert_dialogs.dart';
+import 'package:tutorial_coach_mark/tutorial_coach_mark.dart';
 
 class ProductDetailsScreen extends StatelessWidget {
   final ProductoModel producto;
@@ -18,8 +18,6 @@ class ProductDetailsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-
     List<PrecioModel> precios = new List<PrecioModel>();
 
     cargarInformacion(int id) {
@@ -49,6 +47,117 @@ class ProductDetailsScreen extends StatelessWidget {
     int id = producto.proId;
     cargarInformacion(id);
 
+    return _Scaffold(context: context, producto: producto, precios: precios);
+  }
+}
+
+class _Scaffold extends StatefulWidget {
+  const _Scaffold(
+      {@required this.producto,
+      @required this.precios,
+      @required this.context});
+
+  final ProductoModel producto;
+  final List<PrecioModel> precios;
+  final BuildContext context;
+
+  @override
+  __ScaffoldState createState() => __ScaffoldState();
+}
+
+class __ScaffoldState extends State<_Scaffold> {
+  TutorialCoachMark tutorialCoachMark;
+
+  GlobalKey keyPrices = new GlobalKey();
+  GlobalKey keyBack = new GlobalKey();
+
+  List<TargetFocus> targets = List<TargetFocus>();
+
+  TextStyle estiloEncabezado =
+      TextStyle(fontWeight: FontWeight.bold, fontSize: 24, color: Colors.white);
+
+  TextStyle estiloCuerpo =
+      TextStyle(fontWeight: FontWeight.w400, fontSize: 14, color: Colors.white);
+
+  @override
+  void initState() {
+    final secure = SecureStorage();
+    final almacenamiento = secure.crearAlmacenamiento();
+
+    almacenamiento.read(key: 'coachMark').then((cm) {
+      if(cm == null || cm.isEmpty){
+        initTarget();
+        WidgetsBinding.instance.addPostFrameCallback(_afterLayout);
+      }
+      super.initState();
+    });
+  }
+
+  void _afterLayout(_) {
+    Future.delayed(Duration(microseconds: 2000));
+    _showTutorial();
+  }
+
+  void _showTutorial() {
+    final secure = SecureStorage();
+    final almacenamiento = secure.crearAlmacenamiento();
+    tutorialCoachMark = TutorialCoachMark(widget.context,
+        targets: targets,
+        colorShadow: Colors.black,
+        opacityShadow: 0.8,
+        textSkip: 'Omitir', onClickSkip: () {
+      almacenamiento.write(key: 'coachMark', value: 'noshow');
+      print('Hecho skip');
+      Navigator.of(context).pop();
+      Navigator.of(context).pop();
+    }, onFinish: () {
+      almacenamiento.write(key: 'coachMark', value: 'noshow');
+      print('Hecho fin');
+      Navigator.of(context).pop();
+      Navigator.of(context).pop();
+    })
+      ..show();
+  }
+
+  void initTarget() {
+    targets.add(
+      TargetFocus(identify: 'target 0', keyTarget: keyPrices, contents: [
+        ContentTarget(
+            align: AlignContent.right,
+            child: Container(
+              child: Column(
+                children: [
+                  Text('Precios', style: estiloEncabezado),
+                  SizedBox(height: 10),
+                  Text('consulta precios',
+                      textAlign: TextAlign.center, style: estiloCuerpo)
+                ],
+              ),
+            ))
+      ]),
+    );
+    targets.add(
+      TargetFocus(identify: 'target 0', keyTarget: keyBack, contents: [
+        ContentTarget(
+            align: AlignContent.bottom,
+            child: Container(
+              child: Column(
+                children: [
+                  Text('Regresar', style: estiloEncabezado),
+                  SizedBox(height: 10),
+                  Text('Regresa a la pantalla anterior',
+                      textAlign: TextAlign.center, style: estiloCuerpo)
+                ],
+              ),
+            ))
+      ]),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+
     return Scaffold(
       body: Stack(
         children: [
@@ -62,6 +171,7 @@ class ProductDetailsScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   InkWell(
+                    key: keyBack,
                     child: Icon(Icons.arrow_back_ios, color: Colors.white),
                     onTap: () {
                       Navigator.of(context).pop();
@@ -71,7 +181,7 @@ class ProductDetailsScreen extends StatelessWidget {
                   Container(
                     width: size.width * 0.6,
                     child: Text(
-                      producto.proDescripcion,
+                      widget.producto.proDescripcion,
                       maxLines: 3,
                       style: TextStyle(
                           color: Colors.white,
@@ -81,8 +191,8 @@ class ProductDetailsScreen extends StatelessWidget {
                   ),
                   SizedBox(height: 15),
                   Text(
-                    (producto.proCodigoBarras != null)
-                        ? producto.proCodigoBarras
+                    (widget.producto.proCodigoBarras != null)
+                        ? widget.producto.proCodigoBarras
                         : 'Sin Codigo',
                     style: TextStyle(color: OmniventColors.naranja),
                   ),
@@ -94,7 +204,7 @@ class ProductDetailsScreen extends StatelessWidget {
                         children: [
                           SizedBox(height: 15),
                           Text(
-                            'Familia:\n${producto.familia.toLowerCase()}',
+                            'Familia:\n${widget.producto.familia.toLowerCase()}',
                             style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 16,
@@ -102,7 +212,7 @@ class ProductDetailsScreen extends StatelessWidget {
                           ),
                           SizedBox(height: 5),
                           Text(
-                            'Subfamilia:\n${(producto.subFamilia.length > 12) ? producto.subFamilia.substring(0, 12) + '...' : producto.subFamilia}',
+                            'Subfamilia:\n${(widget.producto.subFamilia.length > 12) ? widget.producto.subFamilia.substring(0, 12) + '...' : widget.producto.subFamilia}',
                             style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 16,
@@ -112,7 +222,7 @@ class ProductDetailsScreen extends StatelessWidget {
                       ),
                       SizedBox(width: 40),
                       Hero(
-                        tag: producto.proId,
+                        tag: widget.producto.proId,
                         child: FadeInImage(
                             width: 200,
                             height: 150,
@@ -133,7 +243,7 @@ class ProductDetailsScreen extends StatelessWidget {
                   Container(
                     width: size.width * 0.9,
                     child: Text(
-                      producto.proDescripcion.toLowerCase(),
+                      widget.producto.proDescripcion.toLowerCase(),
                       style: TextStyle(
                           color: Colors.black54,
                           fontWeight: FontWeight.w400,
@@ -155,7 +265,7 @@ class ProductDetailsScreen extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
                           Text(
-                            'Identificacion: ${producto.proIdentificacion}',
+                            'Identificacion: ${widget.producto.proIdentificacion}',
                             style: TextStyle(
                                 color: Colors.black54,
                                 fontWeight: FontWeight.w400,
@@ -163,7 +273,7 @@ class ProductDetailsScreen extends StatelessWidget {
                           ),
                           SizedBox(width: 30),
                           Text(
-                            'ID: ${producto.proId}',
+                            'ID: ${widget.producto.proId}',
                             style: TextStyle(
                                 color: Colors.black54,
                                 fontWeight: FontWeight.w400,
@@ -185,7 +295,7 @@ class ProductDetailsScreen extends StatelessWidget {
                                 fontSize: 14),
                           ),
                           Text(
-                            '\$${producto.proPrecioGeneralIva.toStringAsFixed(2)}',
+                            '\$${widget.producto.proPrecioGeneralIva.toStringAsFixed(2)}',
                             style: TextStyle(
                                 color: Colors.black,
                                 fontWeight: FontWeight.bold,
@@ -205,7 +315,7 @@ class ProductDetailsScreen extends StatelessWidget {
                                 fontSize: 14),
                           ),
                           Text(
-                            '\$${producto.proCostoGeneralIva.toStringAsFixed(2)}',
+                            '\$${widget.producto.proCostoGeneralIva.toStringAsFixed(2)}',
                             style: TextStyle(
                                 color: Colors.black,
                                 fontWeight: FontWeight.bold,
@@ -219,31 +329,34 @@ class ProductDetailsScreen extends StatelessWidget {
                   Row(
                     children: [
                       RaisedButton(
+                          key: keyPrices,
                           child: Text(
                             'Consultar lista de precios',
                             style: TextStyle(color: Colors.white),
                           ),
                           color: OmniventColors.azulMarino,
                           onPressed: () {
-                            if (precios != null && precios.length > 0) {
+                            if (widget.precios != null &&
+                                widget.precios.length > 0) {
                               showDialog(
                                   context: context,
                                   barrierDismissible: true,
                                   builder: (context) {
                                     return CustomAlertDialog(
-                                        titulo: producto.proDescripcion,
+                                        titulo: widget.producto.proDescripcion,
                                         contenido: List.generate(
-                                            precios.length,
+                                            widget.precios.length,
                                             (index) => Column(
-                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
                                                   children: [
                                                     Text(
-                                                        '${precios[index].listaPrecio}'),
+                                                        '${widget.precios[index].listaPrecio}'),
                                                     SizedBox(height: 10),
                                                     Row(
                                                       children: [
                                                         Text(
-                                                          'C/Iva: \$${precios[index].lipDetConIva.toStringAsFixed(2)}',
+                                                          'C/Iva: \$${widget.precios[index].lipDetConIva.toStringAsFixed(2)}',
                                                           style: TextStyle(
                                                               fontSize: 14,
                                                               color: OmniventColors
@@ -251,7 +364,7 @@ class ProductDetailsScreen extends StatelessWidget {
                                                         ),
                                                         SizedBox(width: 10),
                                                         Text(
-                                                          'S/Iva: \$${precios[index].lipDetSinIva.toStringAsFixed(2)}',
+                                                          'S/Iva: \$${widget.precios[index].lipDetSinIva.toStringAsFixed(2)}',
                                                           style: TextStyle(
                                                               fontSize: 14,
                                                               color: OmniventColors
@@ -270,13 +383,14 @@ class ProductDetailsScreen extends StatelessWidget {
                                           )
                                         ]);
                                   });
-                            } else if (precios.length == 0) {
+                            } else if (widget.precios.length == 0) {
                               showDialog(
                                   context: context,
                                   barrierDismissible: true,
                                   builder: (context) {
                                     return CustomAlertDialog(
-                                        titulo: 'No hay precios para este producto',
+                                        titulo:
+                                            'No hay precios para este producto',
                                         contenido: [],
                                         botones: [
                                           FlatButton(

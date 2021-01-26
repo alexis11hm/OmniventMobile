@@ -219,15 +219,12 @@ class _ContentSales extends StatelessWidget {
                                               ventaDetalle:
                                                   ventasDetalle[index],
                                             ))),
-                                leading: Hero(
-                                  tag:
-                                      '${ventasDetalle[index].vedId + ventasDetalle[index].vtaId}',
-                                  child: FadeInImage(
+                                leading:FadeInImage(
                                       placeholder:
                                           AssetImage('assets/cargando.gif'),
                                       image: AssetImage(
                                           'assets/imagen_no_disponible.png')),
-                                ),
+                                
                                 title: Text(ventasDetalle[index].producto),
                                 subtitle: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,

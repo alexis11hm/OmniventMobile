@@ -20,27 +20,22 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size.width * 0.5;
+    final size = MediaQuery.of(context).size;
     return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: size,
-              height: size,
-              child: Image.asset('assets/logo/logo.png'),
-            ),
-            SizedBox(height: 20),
-            Text('Version 1.0.0',
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w300
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Image.asset(
+                'assets/logo/logo_omnivent.png',
+                width: size.width,
               ),
-            )
-          ],
-        ),
-      ),
+              Text(
+                'Version 1.0.0',
+                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w300),
+              )
+            ],
+          )
     );
   }
 }

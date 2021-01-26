@@ -8,14 +8,28 @@ import 'package:dio/dio.dart';
 import 'package:omnivent_app_wireframe/omnivent_state_managment/domain/model/ResponseModel.dart';
 
 import 'package:omnivent_app_wireframe/omnivent_state_managment/domain/model/ProductoModel.dart';
+import 'package:omnivent_app_wireframe/omnivent_state_managment/domain/storage/secure_storage.dart';
 
 
 class ProductosService{
+
+  /*Obtner ruta
+  
+  final secure = SecureStorage();
+          final almacenamiento = secure.crearAlmacenamiento();
+          
+          almacenamiento.read(key: 'rutaAPI').then((ruta) => {
+            print('url: ${ruta}') 
+          });
+  */
 
   final String urlBase = 'https://192.168.1.106:5001/api/';
 
   Future<ResponseModel> ObtenerProductos(String token) async{
       try{
+
+          
+
           Response response;
           Dio dio = new Dio();
 

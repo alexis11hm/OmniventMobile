@@ -48,6 +48,10 @@ class __TextFieldsState extends State<_TextFields> {
     final secure = SecureStorage();
     final almacenamiento = secure.crearAlmacenamiento();
 
+    almacenamiento.read(key: 'rutaAPI').then((ruta) => {
+      print('La ruta de la API es: ${ruta}')
+    });
+
     final size = MediaQuery.of(context).size;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 30),
@@ -130,6 +134,7 @@ class __TextFieldsState extends State<_TextFields> {
                         {
                           secure.escribirValorAlmacenamiento(almacenamiento,
                               'token', 'Bearer ${value.respuesta}'),
+                          
                           Navigator.of(context).pushReplacement(
                               CupertinoPageRoute(builder: (_) => HomeScreen()))
                         }

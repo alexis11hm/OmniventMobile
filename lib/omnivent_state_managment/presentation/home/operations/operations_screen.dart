@@ -18,6 +18,9 @@ import 'package:provider/provider.dart';
 class OperationsScreen extends StatelessWidget {
 
 
+  final List<GlobalKey> globalKeys;
+
+  const OperationsScreen({@required this.globalKeys});
   
 
   @override
@@ -25,11 +28,15 @@ class OperationsScreen extends StatelessWidget {
 
     return ChangeNotifierProvider(
               create: (_) => new OperacionesProvider(),
-              child: _SliverCustom());
+              child: _SliverCustom(globalKeys: globalKeys));
   }
 }
 
 class _SliverCustom extends StatelessWidget {
+
+  final List<GlobalKey> globalKeys;
+
+  const _SliverCustom({@required this.globalKeys});
 
   @override
   Widget build(BuildContext context) {
@@ -129,7 +136,7 @@ class _SliverCustom extends StatelessWidget {
       operacionesProvider.cargarInformacion = 0;
      }
 
-
+    
     return SliverCustom(
                     title: 'Hola usuario',
                     subtitle: 'Bienvenido de Nuevo',
@@ -140,6 +147,7 @@ class _SliverCustom extends StatelessWidget {
                     sliverChild: Container(
                       height: 45,
                       child: CupertinoTextField(
+                      key: ( globalKeys.length > 1) ? globalKeys[1] : null,
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.all(Radius.circular(20))
@@ -165,7 +173,9 @@ class _SliverCustom extends StatelessWidget {
                             crossAxisCount: 2,
                             children: 
                               List.generate(operacionesProvider.operaciones.length, (index){
+                                print(index);
                                 return GestureDetector(
+                                key: (index==0 && globalKeys.length > 0) ? globalKeys[0] : null,
                                 child: Card(
                                     elevation: 5,
                                     margin: EdgeInsets.all(10),

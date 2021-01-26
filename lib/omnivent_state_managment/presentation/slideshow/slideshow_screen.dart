@@ -2,6 +2,7 @@ import 'package:animate_do/animate_do.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:omnivent_app_wireframe/omnivent_state_managment/domain/provider/SlideshowProvider.dart';
+import 'package:omnivent_app_wireframe/omnivent_state_managment/presentation/configuration/configuration_screen.dart';
 import 'package:omnivent_app_wireframe/omnivent_state_managment/presentation/login/login_screen.dart';
 
 import 'package:omnivent_app_wireframe/omnivent_state_managment/presentation/widgets/slideshow.dart';
@@ -48,7 +49,7 @@ class SlideshowScreen extends StatelessWidget {
           child: FloatingActionButton(
             onPressed: () {
               Navigator.of(context).pushReplacement(
-                  CupertinoPageRoute(builder: (_) => LoginScreen()));
+                  CupertinoPageRoute(builder: (_) => ConfigurationScreen()));
             },
             backgroundColor: Color(0xFF264e86),
             child: Icon(Icons.login),

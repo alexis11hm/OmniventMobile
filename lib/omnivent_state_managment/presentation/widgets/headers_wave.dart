@@ -212,3 +212,54 @@ class _HeaderBottomWavePainter extends CustomPainter{
     bool shouldRepaint(CustomPainter oldDelegate) => true;
 
 }
+
+class HeaderAndFooterWave extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+
+    final size = MediaQuery.of(context).size;
+
+    return Container(
+      height: size.height,
+      width: size.width,
+      child: CustomPaint(
+        painter: _HeaderAndFooterWave(),
+      ),
+    );
+  }
+}
+
+class _HeaderAndFooterWave extends CustomPainter{
+  @override
+  void paint(Canvas canvas, Size size) {
+
+      final rect = Rect.fromCircle(
+      center: Offset(0,155.0),
+      radius: 300
+      );
+
+      final Gradient gradient = LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: <Color>[
+         OmniventColors.azulMarino,
+         OmniventColors.azulAcento
+        ]
+      );
+
+      final paint = Paint()..shader = gradient.createShader(rect);
+      paint.strokeWidth = 10;
+      paint.style = PaintingStyle.fill;
+
+      final path = Path();
+      path.lineTo(0, size.height * 0.2);
+      path.quadraticBezierTo(size.width * 0.25, size.height * 0.15   , size.width * 0.5, size.height * 0.2);
+      path.quadraticBezierTo(size.width * 0.75, size.height * 0.25   , size.width, size.height * 0.2);
+      path.lineTo(size.width, 0);
+      canvas.drawPath(path, paint);
+    }
+  
+    @override
+    bool shouldRepaint(CustomPainter oldDelegate) => true;
+
+}

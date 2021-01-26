@@ -210,10 +210,6 @@ class _ContentSales extends StatelessWidget {
                         child: Column(
                           children: [
                             ListTile(
-                              onTap: () => Navigator.of(context).push(
-                                  CupertinoPageRoute(
-                                      builder: (BuildContext context) =>
-                                          ProductsSalesDetailsScreen())),
                               leading: FadeInImage(
                                   placeholder:
                                       AssetImage('assets/cargando.gif'),

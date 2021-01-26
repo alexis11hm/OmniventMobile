@@ -17,16 +17,160 @@ import 'package:omnivent_app_wireframe/omnivent_state_managment/presentation/log
 import 'package:omnivent_app_wireframe/omnivent_state_managment/presentation/widgets/alert_dialogs.dart';
 
 import 'package:provider/provider.dart';
+import 'package:tutorial_coach_mark/tutorial_coach_mark.dart';
 
 class ProductsCatalogScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-        create: (_) => new ProductosProvider(), child: _Scaffold());
+        create: (_) => new ProductosProvider(),
+        child: _Scaffold(context: context));
   }
 }
 
-class _Scaffold extends StatelessWidget {
+class _Scaffold extends StatefulWidget {
+  final BuildContext context;
+
+  const _Scaffold({this.context});
+
+  @override
+  __ScaffoldState createState() => __ScaffoldState();
+}
+
+class __ScaffoldState extends State<_Scaffold> {
+  TutorialCoachMark tutorialCoachMark;
+
+  GlobalKey keyHeader = new GlobalKey();
+  GlobalKey keyProduct = new GlobalKey();
+  GlobalKey keyRecharge = new GlobalKey();
+  GlobalKey keySearch = new GlobalKey();
+
+  List<TargetFocus> targets = List<TargetFocus>();
+
+  TextStyle estiloEncabezado =
+      TextStyle(fontWeight: FontWeight.bold, fontSize: 24, color: Colors.white);
+
+  TextStyle estiloCuerpo =
+      TextStyle(fontWeight: FontWeight.w400, fontSize: 14, color: Colors.white);
+
+  @override
+  void initState() {
+    final secure = SecureStorage();
+    final almacenamiento = secure.crearAlmacenamiento();
+
+    almacenamiento.read(key: 'coachMark').then((cm) {
+      if(cm == null || cm.isEmpty){
+        initTarget();
+        WidgetsBinding.instance.addPostFrameCallback(_afterLayout);
+      }
+      super.initState();
+    });
+  }
+
+  void _afterLayout(_) {
+    Future.delayed(Duration(microseconds: 2000));
+    _showTutorial();
+  }
+
+  void _showTutorial() {
+    tutorialCoachMark = TutorialCoachMark(widget.context,
+        targets: targets,
+        colorShadow: Colors.black,
+        opacityShadow: 0.8,
+        textSkip: 'Omitir',
+        onClickSkip: () => Navigator.of(context).push(CupertinoPageRoute(
+            builder: (_) => ProductDetailsScreen(
+                  producto: ProductoModel(
+                      familia: 'General',
+                      proCodigoBarras: '000000',
+                      proCostoGeneralIva: 0.0,
+                      proId: 0,
+                      proDescripcion: 'Producto Sin Descripción',
+                      proIdentificacion: '000',
+                      proPrecioGeneralIva: 0.0,
+                      subFamilia: 'General'),
+                ))),
+        onFinish: () => Navigator.of(context).push(CupertinoPageRoute(
+            builder: (_) => ProductDetailsScreen(
+                producto: ProductoModel(
+                    familia: 'General',
+                    proCodigoBarras: '000000',
+                    proCostoGeneralIva: 0.0,
+                    proId: 0,
+                    proDescripcion: 'Producto Sin Descripción',
+                    proIdentificacion: '000',
+                    proPrecioGeneralIva: 0.0,
+                    subFamilia: 'General')))))
+      ..show();
+  }
+
+  void initTarget() {
+    targets.add(
+      TargetFocus(identify: 'target 0', keyTarget: keyHeader, contents: [
+        ContentTarget(
+            align: AlignContent.bottom,
+            child: Container(
+              child: Column(
+                children: [
+                  Text('Categoria de Producto', style: estiloEncabezado),
+                  SizedBox(height: 10),
+                  Text('Filtra una categoria por su familia',
+                      textAlign: TextAlign.center, style: estiloCuerpo)
+                ],
+              ),
+            ))
+      ]),
+    );
+    targets.add(
+      TargetFocus(identify: 'target 0', keyTarget: keySearch, contents: [
+        ContentTarget(
+            align: AlignContent.bottom,
+            child: Container(
+              child: Column(
+                children: [
+                  Text('Realiza una Busqueda', style: estiloEncabezado),
+                  SizedBox(height: 10),
+                  Text('realiza una busqueda avanzada',
+                      textAlign: TextAlign.center, style: estiloCuerpo)
+                ],
+              ),
+            ))
+      ]),
+    );
+    targets.add(
+      TargetFocus(identify: 'target 0', keyTarget: keyRecharge, contents: [
+        ContentTarget(
+            align: AlignContent.top,
+            child: Container(
+              child: Column(
+                children: [
+                  Text('Recargar Informacion', style: estiloEncabezado),
+                  SizedBox(height: 10),
+                  Text('Obten la informacion mas nueva',
+                      textAlign: TextAlign.center, style: estiloCuerpo)
+                ],
+              ),
+            ))
+      ]),
+    );
+    targets.add(
+      TargetFocus(identify: 'target 0', keyTarget: keyProduct, contents: [
+        ContentTarget(
+            align: AlignContent.top,
+            child: Container(
+              child: Column(
+                children: [
+                  Text('Producto', style: estiloEncabezado),
+                  SizedBox(height: 10),
+                  Text('Revisa las caracteristicas de un producto',
+                      textAlign: TextAlign.center, style: estiloCuerpo)
+                ],
+              ),
+            ))
+      ]),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     void _mostrarAlerta() {
@@ -97,6 +241,7 @@ class _Scaffold extends StatelessWidget {
         floatingActionButton: Roulette(
           delay: Duration(milliseconds: 1500),
           child: FloatingActionButton(
+              key: keyRecharge,
               child: Icon(Icons.sync_rounded),
               backgroundColor: OmniventColors.naranja,
               onPressed: () {
@@ -106,6 +251,7 @@ class _Scaffold extends StatelessWidget {
         appBar: AppBar(
           actions: [
             IconButton(
+              key: keySearch,
               icon: Icon(Icons.search),
               onPressed: () {
                 showSearch(
@@ -121,8 +267,9 @@ class _Scaffold extends StatelessWidget {
         ),
         body: Column(
           children: [
-            //_HeaderFamilyList(),
-            _ProductsList(productos: productosProvider.productos),
+            _HeaderFamilyList(globalKey: keyHeader),
+            _ProductsList(
+                productos: productosProvider.productos, globalKey: keyProduct),
           ],
         ));
   }
@@ -130,8 +277,9 @@ class _Scaffold extends StatelessWidget {
 
 class _ProductsList extends StatelessWidget {
   final List<ProductoModel> productos;
+  final GlobalKey globalKey;
 
-  const _ProductsList({@required this.productos});
+  const _ProductsList({@required this.productos, this.globalKey});
 
   @override
   Widget build(BuildContext context) {
@@ -143,6 +291,7 @@ class _ProductsList extends StatelessWidget {
                 shrinkWrap: true,
                 children: List.generate(productos.length, (index) {
                   return GestureDetector(
+                    key: (index == 0) ? globalKey : null,
                     onTap: () {
                       Navigator.of(context).push(CupertinoPageRoute(
                         builder: (_) => ProductDetailsScreen(
@@ -386,6 +535,8 @@ class DataSearch extends SearchDelegate {
 }
 
 class _HeaderFamilyList extends StatelessWidget {
+  final GlobalKey globalKey;
+
   final familyList = [
     Family(icon: Icons.people_outline, title: 'General'),
     Family(icon: Icons.food_bank_outlined, title: 'Botanas'),
@@ -394,6 +545,8 @@ class _HeaderFamilyList extends StatelessWidget {
     Family(icon: Icons.cake_outlined, title: 'Ropa'),
     Family(icon: Icons.icecream, title: 'Neveria'),
   ];
+
+  _HeaderFamilyList({this.globalKey});
 
   @override
   Widget build(BuildContext context) {
@@ -415,6 +568,7 @@ class _HeaderFamilyList extends StatelessWidget {
                 scrollDirection: Axis.horizontal,
                 itemBuilder: (BuildContext context, int index) {
                   return Container(
+                    key: (index == 0) ? globalKey : null,
                     decoration: BoxDecoration(
                       color: (index == 0)
                           ? OmniventColors.naranja
