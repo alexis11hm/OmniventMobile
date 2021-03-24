@@ -1,6 +1,7 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:omnivent_app_wireframe/omnivent_state_managment/colors.dart';
 import 'package:omnivent_app_wireframe/omnivent_state_managment/data/service/CorteCajasService.dart';
@@ -62,22 +63,29 @@ class _Scaffold extends StatelessWidget {
 
     cargarInformacion() {
       almacenamiento.read(key: 'token').then((token) => {
-            corteCajasService.ObtenerCorteCajas(token).then((respuesta) => {
-                  if (respuesta.estatus == 200)
-                    {
-                      print('Corte Cajas'),
-                      corteCajasProvider.cortesCaja = respuesta.respuesta,
-                      corteCajasProvider.cortesCajaBuscar = respuesta.respuesta,
-                      corteCajasProvider.cargarInformacion = 0
-                    }
-                  else if (respuesta.estatus == 401)
-                    {_mostrarAlerta()}
-                  else
-                    {
-                      corteCajasProvider.cortesCaja = null,
-                      corteCajasProvider.cortesCajaBuscar = null,
-                      corteCajasProvider.cargarInformacion = 0
-                    }
+            almacenamiento.read(key: 'rutaAPI').then((ruta) => {
+                  corteCajasService.ObtenerCorteCajas(token, ruta)
+                      .then((respuesta) => {
+                            if (respuesta.estatus == 200)
+                              {
+                                print('flujo de efectivo'),
+                                corteCajasProvider.cortesCaja =
+                                    respuesta.respuesta,
+                                corteCajasProvider.cortesCajaBuscar =
+                                    respuesta.respuesta,
+                                corteCajasProvider.cargarInformacion = 0,
+                                print(
+                                    'flujo de efectivo: ${corteCajasProvider.cortesCajaBuscar.length}')
+                              }
+                            else if (respuesta.estatus == 401)
+                              {_mostrarAlerta()}
+                            else
+                              {
+                                corteCajasProvider.cortesCaja = null,
+                                corteCajasProvider.cortesCajaBuscar = null,
+                                corteCajasProvider.cargarInformacion = 0
+                              }
+                          })
                 })
           });
     }
@@ -98,7 +106,7 @@ class _Scaffold extends StatelessWidget {
           ),
         ),
         appBar: AppBar(
-          title: Text('Corte de Cajas'),
+          title: Text('Flujos de Efectivo'),
           actions: [
             IconButton(
               icon: Icon(Icons.search),
@@ -113,7 +121,7 @@ class _Scaffold extends StatelessWidget {
           ],
           backgroundColor: OmniventColors.azulMarino,
         ),
-        body: (corteCajasProvider.cortesCaja != null)
+        body: (corteCajasProvider.cortesCaja.length != 0)
             ? ListView.builder(
                 itemCount: corteCajasProvider.cortesCaja.length,
                 itemBuilder: (BuildContext context, int index) {
@@ -123,7 +131,7 @@ class _Scaffold extends StatelessWidget {
                     child: Container(
                       padding: EdgeInsets.all(30),
                       width: double.infinity,
-                      height: 300,
+                      height: 330,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -325,7 +333,32 @@ class _Scaffold extends StatelessWidget {
                     ),
                   );
                 })
-            : Container());
+            : Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    SvgPicture.asset(
+                      'assets/close/no_data.svg',
+                      width: 100,
+                      height: 100,
+                      placeholderBuilder: (BuildContext context) {
+                        return Image.asset(
+                          'assets/cargando.gif',
+                          width: 80,
+                          height: 80,
+                        );
+                      },
+                    ),
+                    SizedBox(height: 15),
+                    Text(
+                      'No hay informacion sobre esta categoria',
+                      style:
+                          TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
+                    ),
+                  ],
+                ),
+              ));
   }
 }
 

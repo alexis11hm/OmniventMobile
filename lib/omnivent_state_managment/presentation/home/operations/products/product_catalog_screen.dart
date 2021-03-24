@@ -57,9 +57,8 @@ class __ScaffoldState extends State<_Scaffold> {
   void initState() {
     final secure = SecureStorage();
     final almacenamiento = secure.crearAlmacenamiento();
-
     almacenamiento.read(key: 'coachMark').then((cm) {
-      if(cm == null || cm.isEmpty){
+      if (cm == null || cm.isEmpty) {
         initTarget();
         WidgetsBinding.instance.addPostFrameCallback(_afterLayout);
       }
@@ -213,22 +212,46 @@ class __ScaffoldState extends State<_Scaffold> {
 
     cargarInformacion() {
       almacenamiento.read(key: 'token').then((token) => {
-            productosService.ObtenerProductos(token).then((respuesta) => {
-                  if (respuesta.estatus == 200)
-                    {
-                      print('Productos'),
-                      productosProvider.productos = respuesta.respuesta,
-                      productosProvider.productosBuscar = respuesta.respuesta,
-                      productosProvider.cargarInformacion = 0
-                    }
-                  else if (respuesta.estatus == 401)
-                    {_mostrarAlerta()}
-                  else
-                    {
-                      productosProvider.productos = null,
-                      productosProvider.productosBuscar = null,
-                      productosProvider.cargarInformacion = 0
-                    }
+            almacenamiento.read(key: 'rutaAPI').then((ruta) => {
+                  productosService.ObtenerFamilias(token, ruta)
+                      .then((respuesta) => {
+                            if (respuesta.estatus == 200)
+                              {
+                                print('Familias'),
+                                productosProvider.familias =
+                                    List<String>.from(respuesta.respuesta),
+                                productosProvider.cargarInformacion = 0
+                              }
+                            else if (respuesta.estatus == 401)
+                              {_mostrarAlerta()}
+                            else
+                              {
+                                productosProvider.familias = null,
+                                productosProvider.cargarInformacion = 0
+                              }
+                          }),
+                  productosService.ObtenerProductos(token, ruta)
+                      .then((respuesta) => {
+                            if (respuesta.estatus == 200)
+                              {
+                                print('Productos'),
+                                productosProvider.productos =
+                                    respuesta.respuesta,
+                                productosProvider.productosBuscar =
+                                    respuesta.respuesta,
+                                productosProvider.cargarInformacion = 0,
+                                print(
+                                    'Productos: ${productosProvider.productosBuscar.length}')
+                              }
+                            else if (respuesta.estatus == 401)
+                              {_mostrarAlerta()}
+                            else
+                              {
+                                productosProvider.productos = null,
+                                productosProvider.productosBuscar = null,
+                                productosProvider.cargarInformacion = 0
+                              }
+                          })
                 })
           });
     }
@@ -246,6 +269,7 @@ class __ScaffoldState extends State<_Scaffold> {
               backgroundColor: OmniventColors.naranja,
               onPressed: () {
                 cargarInformacion();
+                productosProvider.colorFoco = -1;
               }),
         ),
         appBar: AppBar(
@@ -267,9 +291,38 @@ class __ScaffoldState extends State<_Scaffold> {
         ),
         body: Column(
           children: [
-            _HeaderFamilyList(globalKey: keyHeader),
-            _ProductsList(
-                productos: productosProvider.productos, globalKey: keyProduct),
+            _HeaderFamilyList(
+                familias: productosProvider.familias, globalKey: keyHeader),
+            (productosProvider.productos.length != null || productosProvider.productos.length != 0)
+                ? _ProductsList(
+                    productos: productosProvider.productos,
+                    globalKey: keyProduct)
+                : Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        SvgPicture.asset(
+                          'assets/close/no_data.svg',
+                          width: 100,
+                          height: 100,
+                          placeholderBuilder: (BuildContext context) {
+                            return Image.asset(
+                              'assets/cargando.gif',
+                              width: 80,
+                              height: 80,
+                            );
+                          },
+                        ),
+                        SizedBox(height: 15),
+                        Text(
+                          'No hay informacion sobre esta categoria',
+                          style: TextStyle(
+                              fontWeight: FontWeight.w500, fontSize: 16),
+                        ),
+                      ],
+                    ),
+                  ),
           ],
         ));
   }
@@ -284,7 +337,7 @@ class _ProductsList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Expanded(
-        flex: 5,
+        flex: 8,
         child: (productos != null)
             ? GridView.count(
                 crossAxisCount: 2,
@@ -535,74 +588,112 @@ class DataSearch extends SearchDelegate {
 }
 
 class _HeaderFamilyList extends StatelessWidget {
+  final List<String> familias;
   final GlobalKey globalKey;
 
-  final familyList = [
-    Family(icon: Icons.people_outline, title: 'General'),
-    Family(icon: Icons.food_bank_outlined, title: 'Botanas'),
-    Family(icon: Icons.tv_outlined, title: 'Electronica'),
-    Family(icon: Icons.emoji_food_beverage, title: 'Abarrotes'),
-    Family(icon: Icons.cake_outlined, title: 'Ropa'),
-    Family(icon: Icons.icecream, title: 'Neveria'),
-  ];
-
-  _HeaderFamilyList({this.globalKey});
+  _HeaderFamilyList({this.familias, this.globalKey});
 
   @override
   Widget build(BuildContext context) {
+    final productosProvider = Provider.of<ProductosProvider>(context);
+
+    buscarInformacion(String buscar) {
+      print(buscar);
+      final List<ProductoModel> listaProductos = productosProvider
+          .productosBuscar
+          .where((producto) =>
+              producto.familia.toLowerCase().contains(buscar.toLowerCase()) ||
+              //producto.proCodigoBarras.toLowerCase().contains(buscar.toLowerCase()) ||
+              producto.proCostoGeneralIva
+                  .toString()
+                  .toLowerCase()
+                  .contains(buscar.toLowerCase()) ||
+              producto.proDescripcion
+                  .toLowerCase()
+                  .contains(buscar.toLowerCase()) ||
+              producto.proPrecioGeneralIva
+                  .toString()
+                  .toLowerCase()
+                  .contains(buscar.toLowerCase()) ||
+              producto.proId
+                  .toString()
+                  .toLowerCase()
+                  .contains(buscar.toLowerCase()) ||
+              //producto.proIdentificacion.toString().toLowerCase().contains(buscar.toLowerCase()) ||
+              producto.subFamilia.toLowerCase().contains(buscar.toLowerCase()))
+          .toList();
+
+      productosProvider.productos = listaProductos;
+      print('Se realizo la llamada: ${listaProductos.length}');
+    }
+
     return Expanded(
-      flex: 2,
+      flex: 3,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Family',
+              'Familias',
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
             ),
             SizedBox(height: 10),
             Expanded(
               child: ListView.builder(
-                itemCount: familyList.length,
+                itemCount: familias.length,
                 scrollDirection: Axis.horizontal,
                 itemBuilder: (BuildContext context, int index) {
+                  final familia =
+                      familias[index].substring(0, 1).toUpperCase() +
+                          familias[index]
+                              .substring(1, familias[index].length)
+                              .toLowerCase();
                   return Container(
                     key: (index == 0) ? globalKey : null,
-                    decoration: BoxDecoration(
-                      color: (index == 0)
-                          ? OmniventColors.naranja
-                          : Colors.grey[300],
-                      borderRadius: BorderRadius.all(Radius.circular(20)),
-                    ),
-                    margin: EdgeInsets.symmetric(horizontal: 10),
-                    width: 90,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          width: 60,
-                          height: 60,
-                          decoration: BoxDecoration(
-                            color: OmniventColors.azulMarino,
-                            borderRadius: BorderRadius.circular(60),
-                          ),
-                          child: Icon(
-                            familyList[index].icon,
-                            color: Colors.white,
-                            size: 40,
-                          ),
+                    child: InkWell(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: (productosProvider.colorFoco == index)
+                              ? OmniventColors.naranja
+                              : Colors.grey[300],
+                          borderRadius: BorderRadius.all(Radius.circular(20)),
                         ),
-                        SizedBox(height: 10),
-                        Text(
-                          familyList[index].title,
-                          style: TextStyle(
-                              color:
-                                  (index == 0) ? Colors.white : Colors.black87,
-                              fontWeight: FontWeight.w600,
-                              fontSize: 14),
+                        margin: EdgeInsets.symmetric(horizontal: 10),
+                        width: 100,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              width: 60,
+                              height: 60,
+                              decoration: BoxDecoration(
+                                color: OmniventColors.azulMarino,
+                                borderRadius: BorderRadius.circular(60),
+                              ),
+                              child: Icon(
+                                Icons.category_rounded,
+                                color: Colors.white,
+                                size: 40,
+                              ),
+                            ),
+                            SizedBox(height: 10),
+                            Text(
+                              familia,
+                              style: TextStyle(
+                                  color: (productosProvider.colorFoco == index)
+                                      ? Colors.white
+                                      : Colors.black87,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 14),
+                            ),
+                          ],
                         ),
-                      ],
+                      ),
+                      onTap: () {
+                        productosProvider.colorFoco = index;
+                        buscarInformacion(familia);
+                      },
                     ),
                   );
                 },
@@ -613,11 +704,4 @@ class _HeaderFamilyList extends StatelessWidget {
       ),
     );
   }
-}
-
-class Family {
-  final String title;
-  final IconData icon;
-
-  Family({this.title, this.icon});
 }

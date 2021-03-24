@@ -19,8 +19,8 @@ class SalesOptionsScreen extends StatelessWidget {
         onTapIcon: (){
           Navigator.of(context).pop();
         },
-        minHeight: 160,
-        maxHeight: 160,
+        minHeight: 180,
+        maxHeight: 180,
         child: Column(
             children: [
               SizedBox(height: 20),

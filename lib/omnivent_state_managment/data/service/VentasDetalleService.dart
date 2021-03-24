@@ -11,9 +11,7 @@ import 'package:omnivent_app_wireframe/omnivent_state_managment/domain/model/Res
 
 class VentasDetalleService{
 
-  final String urlBase = 'https://192.168.1.106:5001/api/';
-
-  Future<ResponseModel> ObtenerVentasDetalle(String token) async{
+  Future<ResponseModel> ObtenerVentasDetalle(String token,String urlBase) async{
       try{
           Response response;
           Dio dio = new Dio();

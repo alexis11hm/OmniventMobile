@@ -30,19 +30,16 @@ class Slideshow extends StatelessWidget {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
           create: (_) => new SlideshowProvider(),
-          child: SafeArea(
-            child: Center(
-              child: Builder(
-                builder: (BuildContext context){
-                  Provider.of<SlideshowProvider>(context).colorPrimario = this.colorPrimario;
-                  Provider.of<SlideshowProvider>(context).colorSecundario = this.colorSecundario;
-                  Provider.of<SlideshowProvider>(context).bulletPrimario = this.bulletPrimario;
-                  Provider.of<SlideshowProvider>(context).bulletSecundario = this.bulletSecundario;
-                  
-                  return _SlidesShowStructure(slides: this.slides);
-                },
-              )),
-      ),
+          child: Center(
+            child: Builder(
+              builder: (BuildContext context){
+                Provider.of<SlideshowProvider>(context).colorPrimario = this.colorPrimario;
+                Provider.of<SlideshowProvider>(context).colorSecundario = this.colorSecundario;
+                Provider.of<SlideshowProvider>(context).bulletPrimario = this.bulletPrimario;
+                Provider.of<SlideshowProvider>(context).bulletSecundario = this.bulletSecundario;
+                return _SlidesShowStructure(slides: this.slides);
+              },
+            )),
     );
   }
 }
@@ -180,6 +177,7 @@ class _Slide extends StatelessWidget{
     
     final size = MediaQuery.of(context).size;
     final sizeContainer = 300.0;
+    final sizeContainerHeight = 530.0;
 
     return Container(
           color: Color(0xFFD3DCF0),
@@ -190,10 +188,11 @@ class _Slide extends StatelessWidget{
                 else HeaderWaveRight(),
                 CrossWaveLines(),
                 Positioned(
-                  top: 50,
+                  top: (size.height / 2) - (sizeContainerHeight / 2),
                   left: (size.width / 2) - (sizeContainer / 2),
                     child: Container(
                       width: sizeContainer,
+                      height: sizeContainerHeight,
                       child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
@@ -213,21 +212,14 @@ class _Slide extends StatelessWidget{
                             placeholderBuilder: (BuildContext context){
                               return Image.asset(
                                 'assets/cargando.gif',
-                                width: 200,
-                                height: 200,
+                                width: 250,
+                                height: 250,
                                 );
                             },
                             ),
-                        )
-                      ],
-                    ),
-                  ),
-                ),
-                Positioned(
-                  top: 410,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                      child: Container(
+                        ),
+                        SizedBox(height: 10),
+                        Container(
                         width: size.width * 0.90,
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.center,
@@ -248,8 +240,11 @@ class _Slide extends StatelessWidget{
                           ],
                         ),
                       ),
+                      ],
                     ),
-                )
+                  ),
+                ),
+                
                 
               ],
             ),

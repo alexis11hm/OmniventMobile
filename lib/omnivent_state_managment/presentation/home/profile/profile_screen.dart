@@ -57,11 +57,11 @@ class _DataCardProfile extends StatelessWidget {
                     ),
                   ),
                   SizedBox(height: 30),
-                  Text('Nombre: Gustavo Diaz',
+                  Text('Nombre: Consultor1',
                       style:
                           TextStyle(fontSize: 16, fontWeight: FontWeight.w300)),
                   SizedBox(height: 10),
-                  Text('Perfil: Gerente de Almacen',
+                  Text('Perfil: Usuario de Omnivent Movil',
                       style:
                           TextStyle(fontSize: 16, fontWeight: FontWeight.w300)),
                   SizedBox(height: 20),
@@ -176,7 +176,7 @@ class _FrameHeaderContent extends StatelessWidget {
             height: 30,
           ),
           Text(
-            'Usuario',
+            'Consultor1',
             style: TextStyle(
                 color: Colors.white, fontSize: 25, fontWeight: FontWeight.bold),
           ),
@@ -184,7 +184,7 @@ class _FrameHeaderContent extends StatelessWidget {
             height: 5,
           ),
           Text(
-            'Cargo',
+            'Consultor',
             style: TextStyle(
               color: Colors.white54,
               fontSize: 15,

@@ -1,206 +1,368 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
-import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+//import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:omnivent_app_wireframe/omnivent_state_managment/colors.dart';
-import 'package:omnivent_app_wireframe/omnivent_state_managment/presentation/home/operations/sales/products_sales/products_sales_details/products_sales_details_screen.dart';
+import 'package:omnivent_app_wireframe/omnivent_state_managment/data/service/AlmacenProductoService.dart';
+import 'package:omnivent_app_wireframe/omnivent_state_managment/domain/model/AlmacenProductoModel.dart';
+import 'package:omnivent_app_wireframe/omnivent_state_managment/domain/provider/AlmacenProductoProvider.dart';
+import 'package:omnivent_app_wireframe/omnivent_state_managment/domain/storage/secure_storage.dart';
+import 'package:omnivent_app_wireframe/omnivent_state_managment/presentation/login/login_screen.dart';
+import 'package:omnivent_app_wireframe/omnivent_state_managment/presentation/widgets/alert_dialogs.dart';
 import 'package:omnivent_app_wireframe/omnivent_state_managment/presentation/widgets/sliver_custom.dart';
+import 'package:provider/provider.dart';
 
 class InventoryScreen extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+
+    return ChangeNotifierProvider(
+        create: (_) => new AlmacenProductoProvider(), child: _Scaffold());
+  }
+}
+
+class _Scaffold extends StatefulWidget {
+  @override
+  __ScaffoldState createState() => __ScaffoldState();
+}
+
+class __ScaffoldState extends State<_Scaffold> {
+  TextEditingController _controllerBuscar;
+
+  @override
+  void initState() {
+    super.initState();
+    _controllerBuscar = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _controllerBuscar?.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
+    void _mostrarAlerta() {
+      showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) {
+            return CustomAlertDialog(titulo: 'Sesión Expirada', contenido: [
+              Text('La sesión ha expirado'),
+              SvgPicture.asset(
+                'assets/close/salir.svg',
+                width: 120,
+                height: 120,
+                placeholderBuilder: (BuildContext context) {
+                  return Image.asset(
+                    'assets/cargando.gif',
+                    width: 100,
+                    height: 100,
+                  );
+                },
+              ),
+            ], botones: [
+              FlatButton(
+                child: Text('Aceptar'),
+                onPressed: () => Navigator.of(context).pushReplacement(
+                    CupertinoPageRoute(builder: (_) => LoginScreen())),
+              ),
+              FlatButton(
+                child: Text('Cancelar'),
+                onPressed: () => Navigator.of(context).pop(),
+              )
+            ]);
+          });
+    }
 
-    final size = MediaQuery.of(context).size;
+    final almacenProductoService = AlmacenProductoService();
+    final secure = SecureStorage();
+    final almacenamiento = secure.crearAlmacenamiento();
+    final almacenProductoProvider =
+        Provider.of<AlmacenProductoProvider>(context);
+
+    cargarInformacion() {
+      almacenamiento.read(key: 'token').then((token) => {
+            almacenamiento.read(key: 'rutaAPI').then((ruta) => {
+                  almacenProductoService.ObtenerAlmacenProductos(token, ruta)
+                      .then((respuesta) => {
+                            if (respuesta.estatus == 200)
+                              {
+                                print('almacen productos'),
+                                almacenProductoProvider.almacenProductos =
+                                    respuesta.respuesta,
+                                almacenProductoProvider.almacenProductosBuscar =
+                                    respuesta.respuesta,
+                                almacenProductoProvider.cargarInformacion = 0,
+                                print(
+                                    'almacen productos: ${almacenProductoProvider.almacenProductosBuscar.length}')
+                              }
+                            else if (respuesta.estatus == 401)
+                              {_mostrarAlerta()}
+                            else
+                              {
+                                almacenProductoProvider.almacenProductos = null,
+                                almacenProductoProvider.almacenProductosBuscar =
+                                    null,
+                                almacenProductoProvider.cargarInformacion = 0
+                              }
+                          })
+                })
+          });
+    }
+
+    buscarInformacion(String buscar) {
+      final List<AlmacenProductoModel> listaAlmacenProductos =
+          almacenProductoProvider.almacenProductosBuscar
+              .where((almacen) =>
+                  almacen.proId
+                      .toString()
+                      .toLowerCase()
+                      .contains(buscar.toLowerCase()) ||
+                  almacen.productoDescripcion
+                      .toString()
+                      .toLowerCase()
+                      .contains(buscar.toLowerCase()) ||
+                  almacen.productoIdentificacion
+                      .toString()
+                      .toLowerCase()
+                      .contains(buscar.toLowerCase()) ||
+                  almacen.sucursal.toLowerCase().contains(buscar.toLowerCase()))
+              .toList();
+
+      almacenProductoProvider.almacenProductos = listaAlmacenProductos;
+      print('Se realizo la llamada: ${listaAlmacenProductos.length}');
+    }
+
+    if (almacenProductoProvider.cargarInformacion == 1) {
+      cargarInformacion();
+    }
 
     return Scaffold(
-        body: Stack(
-          children: [
-            SliverCustom(
-            title: 'Inventario', 
-            subtitle: 'Verificar Inventario', 
-            iconTitle: Icons.inventory,
-            icon: Icons.arrow_back_ios,
-            onTapIcon: (){
-              Navigator.of(context).pop();
-            },
-            minHeight: 160,
-            maxHeight: 160,
-            sliverChild: Container(),
-            child: _ContentSales()
-            ),
-            
-          ],
-        ),
-        floatingActionButton: FloatingActionButton(
-          child: Icon(Icons.update,color: Colors.white),
-          backgroundColor: OmniventColors.naranja,
-          onPressed: (){},
-        ),
+      body: Stack(
+        children: [
+          SliverCustom(
+              title: 'Inventario',
+              subtitle: 'Verificar Inventario',
+              iconTitle: Icons.inventory,
+              icon: Icons.arrow_back_ios,
+              onTapIcon: () {
+                Navigator.of(context).pop();
+              },
+              minHeight: 220,
+              maxHeight: 220,
+              sliverChild: Container(
+                height: 45,
+                child: CupertinoTextField(
+                  controller: _controllerBuscar,
+                  decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.9),
+                      borderRadius: BorderRadius.all(Radius.circular(20))),
+                  placeholder: '¿Que estas buscando?',
+                  prefix: Container(
+                      padding: EdgeInsets.only(left: 20, right: 10),
+                      child: Icon(Icons.search, color: Colors.black45)),
+                  onChanged: (valor) {
+                    print("Buscando: $valor");
+                    buscarInformacion(valor);
+                  },
+                ),
+              ),
+              child: _ContentSales(
+                  almacenProductos: almacenProductoProvider.almacenProductos)),
+        ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.sync_rounded, color: Colors.white),
+        backgroundColor: OmniventColors.naranja,
+        onPressed: () {
+          cargarInformacion();
+        },
+      ),
     );
   }
 }
 
 class _ContentSales extends StatelessWidget {
+  final List<AlmacenProductoModel> almacenProductos;
 
-  final existingProducts = [
-    ExistingProduct(
-      identifier: '5123',
-      codeBar: '16650298',
-      name: 'Cerveza Victoria 12 Pack',
-      total: 75,
-      image: 'https://tuabarrote.com/4217-large_default/cerveza-victoria-355ml-liquido.jpg'
-    ),
-    ExistingProduct(
-      identifier: '1232',
-      codeBar: '16653298',
-      name: 'Tictac Naranja',
-      total: 120,
-      image: 'https://www.superama.com.mx/Content/images/products/img_large/0000007860375L.jpg'
-    ),
-    ExistingProduct(
-      identifier: '3412',
-      codeBar: '166509821',
-      name: 'Jabor Ariel 500g',
-      total: 0,
-      image: 'https://comercialmexicanaint.com/wp-content/uploads/2019/01/VR31.png'
-    ),
-    ExistingProduct(
-      identifier: '2314',
-      codeBar: '166504321',
-      name: 'Agua Ciel 500ml',
-      total: 798,
-      image: 'https://www.coca-colaentuhogar.com/media/catalog/product/cache/9376f1eb816eda0af02b0c0436fe42c0/7/5/750105531088_-_ciel_1lt_pet_4_1.png'
-    ),
-    ExistingProduct(
-      identifier: '2356',
-      codeBar: '166514321',
-      name: 'Nestle Tea',
-      total: 0,
-      image: 'https://www.bcrek-shop.com/entrepans/42-large_default/nestea-de-limon-50cl.jpg'
-    ),
-    ExistingProduct(
-      identifier: '2376',
-      codeBar: '156514341',
-      name: 'Trident Splash Sweettmint',
-      total: 87,
-      image: 'https://www.trident.com.mx/assets/img/GRID_Productos/9s.png'
-    ),
-    
-    
-  ];
+  _ContentSales({this.almacenProductos});
 
   @override
   Widget build(BuildContext context) {
+    final _textStyle = TextStyle(fontWeight: FontWeight.w400, fontSize: 13);
 
-    final _textStyle = TextStyle(fontWeight: FontWeight.w400,fontSize: 13);
-
-    return Container(
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 15),
-            child: Column(
-              children: [
-                ListView.builder(
-                shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
-                itemCount: existingProducts.length,
-                itemBuilder: (BuildContext context, int index) { 
-                  return Stack(
-                    children: [
-                      Card(
-                        elevation: 5,
-                        child: Container(
-                          padding: EdgeInsets.all(10),
-                          height: 140,
-                          child: Row(
-                            children: [
-                              FadeInImage(
-                                width: 120,
-                                height: 120,
-                                placeholder: NetworkImage('https://i.pinimg.com/originals/58/4b/60/584b607f5c2ff075429dc0e7b8d142ef.gif'),
-                                image: NetworkImage(existingProducts[index].image)
-                              ),
-                              SizedBox(width: 0),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+    return ( almacenProductos != null || almacenProductos.length != 0)
+        ? Container(
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 15),
+              child: Column(
+                children: [
+                  ListView.builder(
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
+                    itemCount: almacenProductos.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      return Stack(
+                        children: [
+                          Card(
+                            elevation: 5,
+                            child: Container(
+                              padding: EdgeInsets.all(10),
+                              height: 185,
+                              child: Row(
                                 children: [
-                                  Text(existingProducts[index].identifier,
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w300
-                                    ),
-                                  ),
-                                  SizedBox(height: 5),
-                                  Text(existingProducts[index].name,
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold
-                                    ),
-                                  ),
-                                  SizedBox(height: 5),
-                                  Text(existingProducts[index].codeBar,
-                                    style: _textStyle
-                                  ),
-                                  SizedBox(height: 5,),
-                                  Text('General',
-                                    style: _textStyle
-                                  ),
-                                  SizedBox(height: 5),
-                                  Text('Refrescos',
-                                    style: _textStyle
-                                  ),
-                                  SizedBox(height: 5),
-                                  Text('Total: ${existingProducts[index].total}',
-                                    style: TextStyle(
-                                      color: Colors.green,
-                                      fontWeight: FontWeight.bold
-                                    )
+                                  FadeInImage(
+                                      width: 120,
+                                      height: 120,
+                                      placeholder:
+                                          AssetImage('assets/cargando.gif'),
+                                      image: AssetImage(
+                                          'assets/imagen_no_disponible.png')),
+                                  SizedBox(width: 0),
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      SizedBox(height: 5),
+                                      Text(almacenProductos[index].sucursal,
+                                          style: _textStyle),
+                                      SizedBox(height: 5),
+                                      Text(
+                                        (almacenProductos[index]
+                                                    .productoDescripcion
+                                                    .length <=
+                                                20)
+                                            ? almacenProductos[index]
+                                                .productoDescripcion
+                                            : almacenProductos[index]
+                                                    .productoDescripcion
+                                                    .substring(0, 20) +
+                                                '...',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                      SizedBox(height: 5),
+                                      Text(
+                                          almacenProductos[index]
+                                              .productoIdentificacion
+                                              .toString(),
+                                          style: _textStyle),
+                                      SizedBox(
+                                        height: 5,
+                                      ),
+                                      Text(
+                                          'Almacen Merma: ${almacenProductos[index].almacenes.almacenMerma}',
+                                          style: _textStyle),
+                                      SizedBox(height: 5),
+                                      Text(
+                                          'Almacen General: ${almacenProductos[index].almacenes.almacenGeneral}',
+                                          style: _textStyle),
+                                      SizedBox(height: 5),
+                                      Text(
+                                          'Almacen Aguascalientes: ${almacenProductos[index].almacenes.almacnAguascalientes}',
+                                          style: _textStyle),
+                                      SizedBox(height: 5),
+                                      Text(
+                                          'Total: ${almacenProductos[index].almacenes.almacenMerma + almacenProductos[index].almacenes.almacenGeneral + almacenProductos[index].almacenes.almacnAguascalientes}',
+                                          style: TextStyle(
+                                              color: (almacenProductos[index]
+                                                              .almacenes
+                                                              .almacenMerma +
+                                                          almacenProductos[
+                                                                  index]
+                                                              .almacenes
+                                                              .almacenGeneral +
+                                                          almacenProductos[
+                                                                  index]
+                                                              .almacenes
+                                                              .almacnAguascalientes >
+                                                      0)
+                                                  ? Colors.green
+                                                  : Colors.red,
+                                              fontWeight: FontWeight.bold))
+                                    ],
                                   )
                                 ],
-                                )
-                            ],
+                              ),
+                            ),
                           ),
-                        ),
-                      ),
-                      Positioned(
-                        top: 0,
-                        right: 0,
-                          child: Container(
-                          height: 40,
-                          width: 40,
-                          decoration: BoxDecoration(
-                            color: (existingProducts[index].total > 0) ? Colors.green : Colors.red,
-                            borderRadius: BorderRadius.all(Radius.circular(30)),
-                          ),
-                          child: (existingProducts[index].total > 0) 
-                                      ? Icon(FontAwesome.check,color: Colors.white,)
-                                      : Icon(FontAwesome.close,color:Colors.white),
-                        ),
-                      )
-                    ],
-                  );
-                },
+                          Positioned(
+                            top: 0,
+                            right: 0,
+                            child: Container(
+                              height: 40,
+                              width: 40,
+                              decoration: BoxDecoration(
+                                color: (almacenProductos[index]
+                                                .almacenes
+                                                .almacenMerma +
+                                            almacenProductos[index]
+                                                .almacenes
+                                                .almacenGeneral +
+                                            almacenProductos[index]
+                                                .almacenes
+                                                .almacnAguascalientes >
+                                        0)
+                                    ? Colors.green
+                                    : Colors.red,
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(30)),
+                              ),
+                              child: (almacenProductos[index]
+                                              .almacenes
+                                              .almacenMerma +
+                                          almacenProductos[index]
+                                              .almacenes
+                                              .almacenGeneral +
+                                          almacenProductos[index]
+                                              .almacenes
+                                              .almacnAguascalientes >
+                                      0)
+                                  ? Icon(
+                                      FontAwesome.check,
+                                      color: Colors.white,
+                                    )
+                                  : Icon(FontAwesome.close,
+                                      color: Colors.white),
+                            ),
+                          )
+                        ],
+                      );
+                    },
+                  ),
+                  SizedBox(height: 10)
+                ],
               ),
-              SizedBox(height: 10)
-            ],
-        ),
-          ),
-    );
+            ),
+          )
+        : Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                SvgPicture.asset(
+                  'assets/close/no_data.svg',
+                  width: 100,
+                  height: 100,
+                  placeholderBuilder: (BuildContext context) {
+                    return Image.asset(
+                      'assets/cargando.gif',
+                      width: 80,
+                      height: 80,
+                    );
+                  },
+                ),
+                SizedBox(height: 15),
+                Text(
+                  'No hay informacion sobre esta categoria',
+                  style: TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
+                ),
+              ],
+            ),
+          );
   }
-}
-
-class ExistingProduct{
-
-  final String name;
-  final String codeBar;
-  final String identifier;
-  final String family;
-  final String sbufamily;
-  final int total;  
-  final String image;
-
-  ExistingProduct({this.image,this.total,this.name, this.codeBar, this.identifier, this.family, this.sbufamily});
-
-  
-
-  
-
 }

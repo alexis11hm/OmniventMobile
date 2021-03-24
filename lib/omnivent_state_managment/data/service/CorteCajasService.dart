@@ -11,11 +11,8 @@ import 'package:omnivent_app_wireframe/omnivent_state_managment/domain/model/Res
 
 class CorteCajasService{
 
-  
 
-  final String urlBase = 'https://192.168.1.106:5001/api/';
-
-  Future<ResponseModel> ObtenerCorteCajas(String token) async{
+  Future<ResponseModel> ObtenerCorteCajas(String token, String urlBase) async{
       try{
           Response response;
           Dio dio = new Dio();

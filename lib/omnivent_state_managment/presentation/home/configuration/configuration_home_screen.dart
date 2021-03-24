@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:omnivent_app_wireframe/omnivent_state_managment/domain/provider/ConfiguracionProvider.dart';
 import 'package:omnivent_app_wireframe/omnivent_state_managment/domain/storage/secure_storage.dart';
+import 'package:omnivent_app_wireframe/omnivent_state_managment/presentation/home/configuration/assistance/assistance_screen.dart';
+import 'package:omnivent_app_wireframe/omnivent_state_managment/presentation/home/configuration/general_conditions/general_conditions_scree.dart';
 import 'package:omnivent_app_wireframe/omnivent_state_managment/presentation/home/configuration/service_route/service_route_screen.dart';
 import 'package:omnivent_app_wireframe/omnivent_state_managment/presentation/login/login_screen.dart';
 import 'package:omnivent_app_wireframe/omnivent_state_managment/presentation/widgets/alert_dialogs.dart';
@@ -12,30 +14,23 @@ import 'package:provider/provider.dart';
 class ConfigurationHomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-
-    
-
     return ChangeNotifierProvider(
-      create: (_) => new ConfiguracionProvider(),
-      child: _SliverCustom());
+        create: (_) => new ConfiguracionProvider(), child: _SliverCustom());
   }
 }
 
 class _SliverCustom extends StatelessWidget {
-  
-
   @override
   Widget build(BuildContext context) {
-
     final configuracionProvider = Provider.of<ConfiguracionProvider>(context);
 
     final secure = SecureStorage();
     final almacenamiento = secure.crearAlmacenamiento();
 
-    leerDato() async{
+    leerDato() async {
       await almacenamiento.read(key: 'rutaAPI').then((ruta) => {
-      configuracionProvider.rutaServicio = ruta,
-      });
+            configuracionProvider.rutaServicio = ruta,
+          });
     }
 
     leerDato();
@@ -45,10 +40,10 @@ class _SliverCustom extends StatelessWidget {
     return SliverCustom(
       title: 'Configuración',
       subtitle: 'Configura tu aplicación',
-      icon: Icons.menu,
+      icon: Icons.storefront,
       iconTitle: Icons.settings,
-      maxHeight: 160,
-      minHeight: 160,
+      maxHeight: 180,
+      minHeight: 180,
       child: SingleChildScrollView(
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: 20),
@@ -77,13 +72,13 @@ class _SliverCustom extends StatelessWidget {
                   Text('Ruta Servicio', style: optionStyle),
                   InkWell(
                     child: Text(
-                      '${(configuracionProvider.rutaServicio.length <= 20) ? configuracionProvider.rutaServicio : configuracionProvider.rutaServicio.substring(0,20)}',
+                      '${(configuracionProvider.rutaServicio.length <= 20) ? configuracionProvider.rutaServicio : configuracionProvider.rutaServicio.substring(0, 20)}',
                       style: optionStyle,
                     ),
                     onTap: () => Navigator.of(context).push(CupertinoPageRoute(
                         builder: (_) => ServiceRouteScreen(
-                          rutaServicio: configuracionProvider.rutaServicio,
-                        ))),
+                              rutaServicio: configuracionProvider.rutaServicio,
+                            ))),
                   )
                 ],
               ),
@@ -93,20 +88,16 @@ class _SliverCustom extends StatelessWidget {
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               SizedBox(height: 15),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text('Centro de ayuda', style: optionStyle),
-                  Icon(Icons.chevron_right, color: Colors.grey)
-                ],
-              ),
-              Divider(),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text('Deja una reseña', style: optionStyle),
-                  Icon(Icons.chevron_right, color: Colors.grey)
-                ],
+              InkWell(
+                onTap: () => Navigator.of(context).push(
+                    CupertinoPageRoute(builder: (_) => AssistanceScreen())),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('Contacto', style: optionStyle),
+                    Icon(Icons.chevron_right, color: Colors.grey)
+                  ],
+                ),
               ),
               SizedBox(height: 20),
               Text(
@@ -114,21 +105,25 @@ class _SliverCustom extends StatelessWidget {
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               SizedBox(height: 15),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text('Condiciones generales', style: optionStyle),
-                  Icon(Icons.chevron_right, color: Colors.grey)
-                ],
+              InkWell(
+                onTap: () => Navigator.of(context).push(
+                    CupertinoPageRoute(builder: (_) => GeneralConditionsScreen())),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('Condiciones generales', style: optionStyle),
+                    Icon(Icons.chevron_right, color: Colors.grey)
+                  ],
+                ),
               ),
-              Divider(),
+              /*Divider(),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text('Política de privacidad', style: optionStyle),
                   Icon(Icons.chevron_right, color: Colors.grey)
                 ],
-              ),
+              ),*/
               Divider(),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -180,12 +175,14 @@ class _SliverCustom extends StatelessWidget {
                 ],
               ),
               SizedBox(height: 20),
-              Row(
+              /*Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text('Versión 1.0.0 OmniventMovil', style: optionStyle)
+                  Text('Versión 1.0.0 OmniventMovil',
+                      style:
+                          TextStyle(fontSize: 14, fontWeight: FontWeight.w300))
                 ],
-              ),
+              ),*/
               SizedBox(height: 100)
             ],
           ),

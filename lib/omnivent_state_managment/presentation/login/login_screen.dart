@@ -12,13 +12,12 @@ import 'package:omnivent_app_wireframe/omnivent_state_managment/presentation/wid
 class LoginScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size.width;
-    final sizeContainer = 300.0;
+    
     return Scaffold(
       body: SingleChildScrollView(
         child: Stack(children: [
           HeaderWaveLogin(),
-          _HeaderLogin(size: size, sizeContainer: sizeContainer),
+          _HeaderLogin(),
           _TextFields()
         ]),
       ),
@@ -48,9 +47,9 @@ class __TextFieldsState extends State<_TextFields> {
     final secure = SecureStorage();
     final almacenamiento = secure.crearAlmacenamiento();
 
-    almacenamiento.read(key: 'rutaAPI').then((ruta) => {
-      print('La ruta de la API es: ${ruta}')
-    });
+    almacenamiento
+        .read(key: 'rutaAPI')
+        .then((ruta) => {print('La ruta de la API es: ${ruta}')});
 
     final size = MediaQuery.of(context).size;
     return Padding(
@@ -114,60 +113,64 @@ class __TextFieldsState extends State<_TextFields> {
                           titulo: 'Iniciando Sesión',
                           contenido: [
                             SizedBox(height: 20),
-                            CircularProgressIndicator(
-                            ),
+                            CircularProgressIndicator(),
                             SizedBox(height: 30),
-                            Text('Cargando...',
+                            Text(
+                              'Cargando...',
                               style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w300
-                              ),
+                                  fontSize: 16, fontWeight: FontWeight.w300),
                             )
                           ],
                           botones: []);
                     });
-                
 
                 Future.delayed(const Duration(milliseconds: 5000), () {
-                  loginService.iniciarSesion(loginModel).then((value) => {
-                      if (value.estatus == 200)
-                        {
-                          secure.escribirValorAlmacenamiento(almacenamiento,
-                              'token', 'Bearer ${value.respuesta}'),
-                          
-                          Navigator.of(context).pushReplacement(
-                              CupertinoPageRoute(builder: (_) => HomeScreen()))
-                        }
-                      else
-                        {
-                          Navigator.of(context).pop(),
-                          showDialog(
-                              context: context,
-                              barrierDismissible: true,
-                              builder: (context) {
-                                return CustomAlertDialog(
-                                    titulo: 'No fue posible iniciar sesión',
-                                    contenido: [
-                                      Text((value.respuesta == null ||
-                                              value.respuesta
-                                                  .toString()
-                                                  .isEmpty)
-                                          ? 'Verifica tus datos e intentalo de nuevo'
-                                          : value.respuesta)
-                                    ],
-                                    botones: [
-                                      FlatButton(
-                                        child: Text('Aceptar'),
-                                        onPressed: () =>
-                                            Navigator.of(context).pop(),
-                                      )
-                                    ]);
-                              }),
-                        }
-                    });
+                  almacenamiento.read(key: 'rutaAPI').then((ruta) => {
+                        loginService
+                            .iniciarSesion(loginModel, ruta)
+                            .then((value) => {
+                                  if (value.estatus == 200)
+                                    {
+                                      secure.escribirValorAlmacenamiento(
+                                          almacenamiento,
+                                          'token',
+                                          'Bearer ${value.respuesta}'),
+                                      Navigator.of(context).pushReplacement(
+                                          CupertinoPageRoute(
+                                              builder: (_) => HomeScreen()))
+                                    }
+                                  else
+                                    {
+                                      Navigator.of(context).pop(),
+                                      showDialog(
+                                          context: context,
+                                          barrierDismissible: true,
+                                          builder: (context) {
+                                            return CustomAlertDialog(
+                                                titulo:
+                                                    'No fue posible iniciar sesión',
+                                                contenido: [
+                                                  Text((value.respuesta ==
+                                                              null ||
+                                                          value.respuesta
+                                                              .toString()
+                                                              .isEmpty)
+                                                      ? 'Verifica tus datos e intentalo de nuevo'
+                                                      : value.respuesta)
+                                                ],
+                                                botones: [
+                                                  FlatButton(
+                                                    child: Text('Aceptar'),
+                                                    onPressed: () =>
+                                                        Navigator.of(context)
+                                                            .pop(),
+                                                  )
+                                                ]);
+                                          }),
+                                    }
+                                })
+                      });
                 });
-
-                
               },
               child: Container(
                 width: size.width,
@@ -202,21 +205,22 @@ class __TextFieldsState extends State<_TextFields> {
 }
 
 class _HeaderLogin extends StatelessWidget {
-  _HeaderLogin({
-    @required this.size,
-    @required this.sizeContainer,
-  });
-
-  final double size;
-  final double sizeContainer;
+  
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final sizeContainer = 300.0;
+    final sizeContainerHeight = 300.0;
+
+    print('Login: ${(size.height / 2) - (sizeContainerHeight)}');
+
     return Positioned(
-      top: 40,
-      left: (size / 2) - (sizeContainer / 2),
+      top: (size.height / 2) - (sizeContainerHeight),
+      left: (size.width / 2) - (sizeContainer / 2),
       child: Container(
         width: sizeContainer,
+        height: sizeContainerHeight,
         child: Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
           Text(
             'Inicio de Sesión',

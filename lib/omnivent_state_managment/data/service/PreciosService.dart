@@ -12,9 +12,8 @@ import 'package:omnivent_app_wireframe/omnivent_state_managment/domain/model/Res
 
 class PreciosService{
 
-  final String urlBase = 'https://192.168.1.106:5001/api/';
 
-  Future<ResponseModel> ObtenerPrecios(String token) async{
+  Future<ResponseModel> ObtenerPrecios(String token,String urlBase) async{
       try{
           Response response;
           Dio dio = new Dio();
@@ -75,7 +74,7 @@ class PreciosService{
       }
   }
 
-  Future<ResponseModel> ObtenerPrecioProducto(String token, int id) async{
+  Future<ResponseModel> ObtenerPrecioProducto(String token, int id,String urlBase) async{
       try{
           Response response;
           Dio dio = new Dio();

@@ -13,9 +13,8 @@ import 'package:omnivent_app_wireframe/omnivent_state_managment/domain/model/Log
 
 class LoginService{
 
-  final String urlBase = 'https://192.168.1.106:5001/api/';
 
-  Future<ResponseModel> iniciarSesion(LoginModel modelo) async{
+  Future<ResponseModel> iniciarSesion(LoginModel modelo,String urlBase) async{
       try{
           Response response;
           Dio dio = new Dio();

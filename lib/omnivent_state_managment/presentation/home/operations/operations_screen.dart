@@ -55,8 +55,8 @@ class _SliverCustom extends StatelessWidget {
         }
       ),
       OptionItem(
-        title: 'Corte de Cajas',
-        subtitle: 'Consulta de Cortes',
+        title: 'Flujos de Efectivo',
+        subtitle: 'Consulta el efectivo',
         icon: Icons.point_of_sale,
         onPressed: (){
           Navigator.of(context).push(
@@ -79,7 +79,7 @@ class _SliverCustom extends StatelessWidget {
         }
       ),
       OptionItem(
-        title: 'Inventario',
+        title: 'Almacen e Inventario',
         subtitle: 'Panel de existencias',
         icon: Icons.inventory,
         onPressed: (){
@@ -101,16 +101,6 @@ class _SliverCustom extends StatelessWidget {
               )
             );
         }
-      ),
-      OptionItem(
-        title: 'Almacen',
-        subtitle: 'Ajustes de Almacen',
-        icon: Icons.shop
-      ),
-      OptionItem(
-        title: 'Almacen Fisico',
-        subtitle: 'Almacenes Fisicos',
-        icon: Icons.shopping_cart
       ),
       
       
@@ -140,9 +130,9 @@ class _SliverCustom extends StatelessWidget {
     return SliverCustom(
                     title: 'Hola usuario',
                     subtitle: 'Bienvenido de Nuevo',
-                    maxHeight: 205,
-                    minHeight: 170,
-                    icon: Icons.menu,
+                    maxHeight: 225,
+                    minHeight: 190,
+                    icon: Icons.storefront,
                     iconTitle: FontAwesome5.smile_wink,
                     sliverChild: Container(
                       height: 45,
@@ -173,7 +163,6 @@ class _SliverCustom extends StatelessWidget {
                             crossAxisCount: 2,
                             children: 
                               List.generate(operacionesProvider.operaciones.length, (index){
-                                print(index);
                                 return GestureDetector(
                                 key: (index==0 && globalKeys.length > 0) ? globalKeys[0] : null,
                                 child: Card(

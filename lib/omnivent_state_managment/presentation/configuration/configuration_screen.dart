@@ -69,8 +69,12 @@ class _ConfigurationScreenState extends State<ConfigurationScreen> {
             if (ruta.isNotEmpty) {
               if (tieneRelacion(ruta)) {
                 Future.delayed(Duration(seconds: 4), () {
-                   secure.escribirValorAlmacenamiento(almacenamiento,
+
+                  secure.escribirValorAlmacenamiento(almacenamiento,
                               'rutaAPI', ruta);
+
+                  almacenamiento.write(key: 'slider', value: 'noshow');
+
                   Navigator.of(context).pushReplacement(
                       CupertinoPageRoute(builder: (_) => LoginScreen()));
                 });

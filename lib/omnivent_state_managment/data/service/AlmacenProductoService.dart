@@ -1,19 +1,20 @@
 
-
 import 'dart:io';
 import 'dart:convert';
 
 import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
+import 'package:omnivent_app_wireframe/omnivent_state_managment/domain/model/AlmacenProductoModel.dart';
+import 'package:omnivent_app_wireframe/omnivent_state_managment/domain/model/PrecioModel.dart';
 
 import 'package:omnivent_app_wireframe/omnivent_state_managment/domain/model/ResponseModel.dart';
 
-import 'package:omnivent_app_wireframe/omnivent_state_managment/domain/model/VentaModel.dart';
 
 
-class VentasService{
+class AlmacenProductoService{
 
-  Future<ResponseModel> ObtenerVentas(String token, String urlBase) async{
+
+  Future<ResponseModel> ObtenerAlmacenProductos(String token,String urlBase) async{
       try{
           Response response;
           Dio dio = new Dio();
@@ -29,21 +30,21 @@ class VentasService{
           dio.options.headers['Content-Type'] = 'application/json; charset=utf-8';
           dio.options.headers["authorization"] = token;
           dio.options.baseUrl = urlBase;
-          response = await dio.get('Ventas/Listar');
+          response = await dio.get('AlmacenesProductos/Existencias');
               
           if(response != null){
             if(response.statusCode == 200){
-              final List<dynamic> listaMapaVentas = response.data;
-              if(listaMapaVentas == null) return ResponseModel(estatus: 200,respuesta: []);
-              final List<VentaModel> listaVentas = new List();
-              listaMapaVentas.forEach((ventaMapa) {
-                final mapa = Map<String, dynamic>.from(ventaMapa);
-                final venta = VentaModel.fromJson(mapa);
-                listaVentas.add(venta);
+              final List<dynamic> listaMapaAlmacenes = response.data;
+              if(listaMapaAlmacenes == null) return ResponseModel(estatus: 200,respuesta: []);
+              final List<AlmacenProductoModel> listaAlmacenes = new List();
+              listaMapaAlmacenes.forEach((almacenMapa) {
+                final mapa = Map<String, dynamic>.from(almacenMapa);
+                final almacen = AlmacenProductoModel.fromJson(mapa);
+                listaAlmacenes.add(almacen);
               });
               return ResponseModel(
                 estatus: 200,
-                respuesta: listaVentas
+                respuesta: listaAlmacenes
               );
             }else{
                 return ResponseModel(

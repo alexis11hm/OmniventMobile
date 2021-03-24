@@ -3,7 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+//import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:omnivent_app_wireframe/omnivent_state_managment/colors.dart';
 import 'package:omnivent_app_wireframe/omnivent_state_managment/domain/model/VentaModel.dart';
 import 'package:omnivent_app_wireframe/omnivent_state_managment/presentation/login/login_screen.dart';
@@ -88,22 +88,26 @@ class __ScaffoldState extends State<_Scaffold> {
 
     cargarInformacion() {
       almacenamiento.read(key: 'token').then((token) => {
-            ventasService.ObtenerVentas(token).then((respuesta) => {
-                  if (respuesta.estatus == 200)
-                    {
-                      print('Ventas'),
-                      ventasProvider.ventas = respuesta.respuesta,
-                      ventasProvider.ventasBuscar = respuesta.respuesta,
-                      ventasProvider.cargarInformacion = 0
-                    }
-                  else if (respuesta.estatus == 401)
-                    {_mostrarAlerta()}
-                  else
-                    {
-                      ventasProvider.ventas = null,
-                      ventasProvider.ventasBuscar = null,
-                      ventasProvider.cargarInformacion = 0
-                    }
+            almacenamiento.read(key: 'rutaAPI').then((ruta) => {
+                  ventasService.ObtenerVentas(token, ruta).then((respuesta) => {
+                        if (respuesta.estatus == 200)
+                          {
+                            print('Ventas'),
+                            ventasProvider.ventas = respuesta.respuesta,
+                            ventasProvider.ventasBuscar = respuesta.respuesta,
+                            ventasProvider.cargarInformacion = 0,
+                            print(
+                                'Ventas: ${ventasProvider.ventasBuscar.length}')
+                          }
+                        else if (respuesta.estatus == 401)
+                          {_mostrarAlerta()}
+                        else
+                          {
+                            ventasProvider.ventas = null,
+                            ventasProvider.ventasBuscar = null,
+                            ventasProvider.cargarInformacion = 0
+                          }
+                      })
                 })
           });
     }
@@ -159,8 +163,8 @@ class __ScaffoldState extends State<_Scaffold> {
               onTapIcon: () {
                 Navigator.of(context).pop();
               },
-              minHeight: 210,
-              maxHeight: 210,
+              minHeight: 220,
+              maxHeight: 220,
               sliverChild: Container(
                 height: 45,
                 child: CupertinoTextField(
@@ -172,21 +176,6 @@ class __ScaffoldState extends State<_Scaffold> {
                   prefix: Container(
                       padding: EdgeInsets.only(left: 20, right: 10),
                       child: Icon(Icons.search, color: Colors.black45)),
-                  /*suffix: Padding(
-                  padding: EdgeInsets.only(right: 20.0),
-                  child: InkWell(
-                      onTap: (){
-                        _controllerBuscar.text = 'e';
-                      },
-                      child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.black12,
-                        borderRadius: BorderRadius.circular(30)
-                      ),
-                      child: Icon(Icons.close),
-                    ),
-                  ),
-                ),*/
                   onChanged: (valor) {
                     print("Buscando: $valor");
                     buscarInformacion(valor);
@@ -208,7 +197,7 @@ class _ContentSales extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-        child: (ventas != null)
+        child: (ventas != null || ventas.length != 0)
             ? Column(
                 children: [
                   ListView.builder(
@@ -222,7 +211,7 @@ class _ContentSales extends StatelessWidget {
                             EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                         child: Container(
                           padding: EdgeInsets.all(15),
-                          height: 270,
+                          height: 295,
                           child: Column(
                             children: [
                               Text(ventas[index].sucursal,
@@ -335,12 +324,24 @@ class _ContentSales extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    SizedBox(height: 60),
-                    CircularProgressIndicator(
-                      backgroundColor: Colors.orange,
+                    SvgPicture.asset(
+                      'assets/close/no_data.svg',
+                      width: 100,
+                      height: 100,
+                      placeholderBuilder: (BuildContext context) {
+                        return Image.asset(
+                          'assets/cargando.gif',
+                          width: 80,
+                          height: 80,
+                        );
+                      },
                     ),
-                    SizedBox(height: 20),
-                    Text('Cargando...'),
+                    SizedBox(height: 15),
+                    Text(
+                      'No hay informacion sobre esta categoria',
+                      style:
+                          TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
+                    ),
                   ],
                 ),
               ));
@@ -382,7 +383,7 @@ class _BotonFiltrar extends StatelessWidget {
         'Filtrar',
         style: TextStyle(color: Colors.white),
       ),
-      onPressed: () => showCupertinoModalBottomSheet(
+      /*onPressed: () => showCupertinoModalBottomSheet(
           isDismissible: true,
           barrierColor: Colors.black.withOpacity(0.6),
           context: context,
@@ -566,7 +567,7 @@ class _BotonFiltrar extends StatelessWidget {
                 ),
               ),
             );
-          }),
+          }),*/
     );
   }
 }

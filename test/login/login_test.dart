@@ -6,7 +6,7 @@ import 'package:omnivent_app_wireframe/omnivent_state_managment/domain/model/Log
 
 void main(){
 
-  group('Pruebas unitarias',(){
+  /*group('Pruebas unitarias',(){
     test('Validacion para el login',(){
     final loginService = LoginService();
     final login = LoginModel();
@@ -29,5 +29,5 @@ void main(){
     });
   });
   });
-
+*/
 }

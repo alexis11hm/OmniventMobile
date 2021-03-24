@@ -3,7 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+//import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:omnivent_app_wireframe/omnivent_state_managment/colors.dart';
 import 'package:omnivent_app_wireframe/omnivent_state_managment/presentation/home/operations/sales/products_sales/products_sales_details/products_sales_details_screen.dart';
 import 'package:omnivent_app_wireframe/omnivent_state_managment/presentation/login/login_screen.dart';
@@ -88,26 +88,31 @@ class __ScaffoldState extends State<_Scaffold> {
 
     cargarInformacion() {
       almacenamiento.read(key: 'token').then((token) => {
-            ventasDetalleService.ObtenerVentasDetalle(token)
-                .then((respuesta) => {
-                      if (respuesta.estatus == 200)
-                        {
-                          print('Ventas Detalle'),
-                          ventasDetalleProvider.ventasDetalle =
-                              respuesta.respuesta,
-                          ventasDetalleProvider.ventasDetalleBuscar =
-                              respuesta.respuesta,
-                          ventasDetalleProvider.cargarInformacion = 0
-                        }
-                      else if (respuesta.estatus == 401)
-                        {_mostrarAlerta()}
-                      else
-                        {
-                          ventasDetalleProvider.ventasDetalle = null,
-                          ventasDetalleProvider.ventasDetalleBuscar = null,
-                          ventasDetalleProvider.cargarInformacion = 0
-                        }
-                    })
+            almacenamiento.read(key: 'rutaAPI').then((ruta) => {
+                  ventasDetalleService.ObtenerVentasDetalle(token, ruta)
+                      .then((respuesta) => {
+                            if (respuesta.estatus == 200)
+                              {
+                                print('Ventas Detalle'),
+                                ventasDetalleProvider.ventasDetalle =
+                                    respuesta.respuesta,
+                                ventasDetalleProvider.ventasDetalleBuscar =
+                                    respuesta.respuesta,
+                                ventasDetalleProvider.cargarInformacion = 0,
+                                print(
+                                    'Ventas Detalle: ${ventasDetalleProvider.ventasDetalleBuscar.length}')
+                              }
+                            else if (respuesta.estatus == 401)
+                              {_mostrarAlerta()}
+                            else
+                              {
+                                ventasDetalleProvider.ventasDetalle = null,
+                                ventasDetalleProvider.ventasDetalleBuscar =
+                                    null,
+                                ventasDetalleProvider.cargarInformacion = 0
+                              }
+                          })
+                })
           });
     }
 
@@ -162,8 +167,8 @@ class __ScaffoldState extends State<_Scaffold> {
               onTapIcon: () {
                 Navigator.of(context).pop();
               },
-              minHeight: 210,
-              maxHeight: 210,
+              minHeight: 220,
+              maxHeight: 220,
               sliverChild: Container(
                   height: 45,
                   child: CupertinoTextField(
@@ -196,7 +201,7 @@ class _ContentSales extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-        child: (ventasDetalle != null)
+        child: (ventasDetalle != null || ventasDetalle.length != 0)
             ? Column(
                 children: [
                   ListView.builder(
@@ -219,12 +224,11 @@ class _ContentSales extends StatelessWidget {
                                               ventaDetalle:
                                                   ventasDetalle[index],
                                             ))),
-                                leading:FadeInImage(
-                                      placeholder:
-                                          AssetImage('assets/cargando.gif'),
-                                      image: AssetImage(
-                                          'assets/imagen_no_disponible.png')),
-                                
+                                leading: FadeInImage(
+                                    placeholder:
+                                        AssetImage('assets/cargando.gif'),
+                                    image: AssetImage(
+                                        'assets/imagen_no_disponible.png')),
                                 title: Text(ventasDetalle[index].producto),
                                 subtitle: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -258,12 +262,24 @@ class _ContentSales extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    SizedBox(height: 60),
-                    CircularProgressIndicator(
-                      backgroundColor: Colors.orange,
+                    SvgPicture.asset(
+                      'assets/close/no_data.svg',
+                      width: 100,
+                      height: 100,
+                      placeholderBuilder: (BuildContext context) {
+                        return Image.asset(
+                          'assets/cargando.gif',
+                          width: 80,
+                          height: 80,
+                        );
+                      },
                     ),
-                    SizedBox(height: 20),
-                    Text('Cargando...'),
+                    SizedBox(height: 15),
+                    Text(
+                      'No hay informacion sobre esta categoria',
+                      style:
+                          TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
+                    ),
                   ],
                 ),
               ));
@@ -302,7 +318,7 @@ class _BotonFiltrar extends StatelessWidget {
     return RaisedButton(
       color: OmniventColors.azulAcento,
       child: Text('Filtrar', style: TextStyle(color: Colors.white)),
-      onPressed: () => showCupertinoModalBottomSheet(
+      /*onPressed: () => showCupertinoModalBottomSheet(
           isDismissible: true,
           barrierColor: Colors.black.withOpacity(0.6),
           context: context,
@@ -440,7 +456,7 @@ class _BotonFiltrar extends StatelessWidget {
                 ),
               ),
             );
-          }),
+          }),*/
     );
   }
 }

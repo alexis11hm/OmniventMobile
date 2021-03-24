@@ -1,3 +1,4 @@
+<!--com.omnisoft.omnivent_movil-->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.omnivent_app_wireframe">
     <!-- Flutter needs it to communicate with the running application
