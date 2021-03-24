@@ -2,7 +2,11 @@
 
 Manage your enterprise using Omnivent and this app to sync the information.
 
+_NOTE: You need have Omnivent installed in any computer_
 
+App: [Omnivent](http://www.omnisoft.com.mx/cms/productos/omnivent)
+
+![omniventmobile](/images/omniventmobile.gif)
 
 ## Sections
 
